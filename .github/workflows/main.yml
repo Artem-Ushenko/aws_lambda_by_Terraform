@@ -44,7 +44,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:
-          terraform_version: "1.6.6"
+          terraform_version: "1.6.1"
           
   lambda_function:
     # needs: [terraform]  # This ensures it runs after the Terraform job
