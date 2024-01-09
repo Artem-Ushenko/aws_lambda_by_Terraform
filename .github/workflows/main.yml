@@ -47,7 +47,7 @@ jobs:
           terraform_version: "1.6.1"
           
   lambda_function:
-    needs: [terraform]  # This ensures it runs after the Terraform job
+    # needs: [terraform]  # This ensures it runs after the Terraform job
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -55,19 +55,19 @@ jobs:
 
       - name: tf init lambda
         run: terraform init
-        working-directory: ./aws_lambda_LMS
+        working-directory: .
 
       - name: tf plan lambda
         run: terraform plan -out=tfplan
-        working-directory: ./aws_lambda_LMS
+        working-directory: .
 
       - name: Upload plan as artifact
         uses: actions/upload-artifact@v2
         with:
           name: TF plan lambda
-          path: aws_lambda_LMS/plan_output.json
+          path: ./plan_output.json
 
       - name: tf apply lambda
         run: terraform apply tfplan
-        working-directory: ./aws_lambda_LMS
+        working-directory: .
         if: github.ref == 'refs/heads/main'
