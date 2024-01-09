@@ -47,7 +47,7 @@ jobs:
           terraform_version: "1.6.1"
           
   lambda_function:
-    # needs: [terraform]  # This ensures it runs after the Terraform job
+    needs: [terraform]  # This ensures it runs after the Terraform job
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
