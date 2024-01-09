@@ -38,7 +38,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v2
         with:
           aws-region: eu-north-1
-          role-to-assume: ${{ secrets.ROLE_ARN }}
+          role-to-assume: arn:aws:iam::835850243153:user/artem_ushenko
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
