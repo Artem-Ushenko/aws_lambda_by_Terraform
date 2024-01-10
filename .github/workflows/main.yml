@@ -1,0 +1,66 @@
+name: 'Terraform Build DevOps01-Project'
+
+# This workflow will run when there is a push or a pull request to the 'main' branch.
+on:
+  push:
+    branches:
+      - "main"
+  pull_request:
+    branches:
+      - "main"
+
+# permission can be added at job level or workflow level
+permissions:
+      id-token: write   # This is required for requesting the JWT
+      contents: read    # This is required for actions/checkout
+
+jobs:
+  # Terraform job for setting up AWS resources
+  
+  terraform_lambda_function:
+    name: 'TF GitHub Actions DevOps01-Project'
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest # Specifies the runner environment to use
+
+    # Specifies default settings for the shell in all run steps in this job.
+    defaults:
+      run:
+        shell: bash
+
+    steps:
+      # Checks out your repository under $GITHUB_WORKSPACE, so your workflow can access it.
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
+          aws-region: eu-north-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.6.6"
+          
+      - name: tf init lambda
+        run: terraform init
+        working-directory: .
+
+      - name: tf plan lambda
+        run: terraform plan -out=tfplan
+        working-directory: .
+
+      - name: Upload plan as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: TF plan lambda
+          path: ./plan_output.json
+
+      - name: tf apply lambda
+        run: terraform apply tfplan
+        working-directory: .
+        if: github.ref == 'refs/heads/main'
