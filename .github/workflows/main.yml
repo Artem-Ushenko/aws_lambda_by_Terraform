@@ -1,22 +1,19 @@
 name: 'Terraform Build DevOps01-Project'
 
-# This workflow will run when there is a push or a pull request to the 'main' branch.
 on:
   push:
     branches:
       - "main"
 
-# permission can be added at job level or workflow level
 permissions:
-      id-token: write   # This is required for requesting the JWT
-      contents: read    # This is required for actions/checkout
-      security-events: write
-
+  id-token: write
+  contents: read
+  security-events: write
 
 jobs:
 
   tfsec-security-check:
-    name: tfsec sarif report
+    name: TFSec Security Check
     runs-on: ubuntu-latest
 
     steps:
@@ -33,24 +30,20 @@ jobs:
         with:
           sarif_file: tfsec.sarif
 
-  # Terraform job for setting up AWS resources
-  
-  terraform_lambda_function:
-    name: 'TF GitHub Actions DevOps01-Project'
+  terraform-plan-lambda-function:
+    name: 'TF Plan Lambda Finction'
     permissions:
       contents: read
       id-token: write
-    runs-on: ubuntu-latest # Specifies the runner environment to use
+    runs-on: ubuntu-latest
     environment: dev
     needs: [tfsec-security-check]
 
-    # Specifies default settings for the shell in all run steps in this job.
     defaults:
       run:
         shell: bash
 
     steps:
-      # Checks out your repository under $GITHUB_WORKSPACE, so your workflow can access it.
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -65,7 +58,7 @@ jobs:
         uses: hashicorp/setup-terraform@v2
         with:
           terraform_version: "1.6.6"
-          
+
       - name: tf init lambda
         run: terraform init
         working-directory: .
@@ -78,9 +71,32 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: TF plan lambda
-          path: ./plan_output.json
+          path: tfplan
+
+  terraform-apply-lambda-function:
+    name: 'TF Apply Lambda Finction'
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    environment: dev
+    needs: [terraform-plan-lambda-function]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download plan artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: TF plan lambda
+          path: .
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.6.6"
 
       - name: tf apply lambda
         run: terraform apply tfplan
         working-directory: .
-        if: github.ref == 'refs/heads/main'
