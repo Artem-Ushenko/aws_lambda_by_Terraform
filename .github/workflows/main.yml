@@ -41,6 +41,7 @@ jobs:
       contents: read
       id-token: write
     runs-on: ubuntu-latest # Specifies the runner environment to use
+    environment: dev
     needs: [tfsec-security-check]
 
     # Specifies default settings for the shell in all run steps in this job.
