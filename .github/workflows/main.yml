@@ -5,9 +5,6 @@ on:
   push:
     branches:
       - "main"
-  pull_request:
-    branches:
-      - "main"
 
 # permission can be added at job level or workflow level
 permissions:
@@ -15,6 +12,25 @@ permissions:
       contents: read    # This is required for actions/checkout
 
 jobs:
+
+  tfsec-security-check:
+    name: tfsec sarif report
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repo
+        uses: actions/checkout@v4
+
+      - name: tfsec
+        uses: tfsec/tfsec-sarif-action@master
+        with:
+          sarif_file: tfsec.sarif
+
+      - name: Upload SARIF file
+        uses: github/codeql-action/upload-sarif@v1
+        with:
+          sarif_file: tfsec.sarif
+
   # Terraform job for setting up AWS resources
   
   terraform_lambda_function:
@@ -23,6 +39,7 @@ jobs:
       contents: read
       id-token: write
     runs-on: ubuntu-latest # Specifies the runner environment to use
+    needs: [tfsec-security-check]
 
     # Specifies default settings for the shell in all run steps in this job.
     defaults:
