@@ -29,4 +29,8 @@ resource "aws_lambda_function" "terraform_lambda_func" {
   handler       = "script.lambda_handler"
   runtime       = "python3.8"
   depends_on    = [aws_iam_policy_attachment.cloudwatch_full_access_attachment]
+
+  tracing_config {
+    mode = "Active"
+  }
 }
