@@ -15,7 +15,6 @@ jobs:
 
   tfsec-security-check:
     name: TFSec Security Check
-    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
 
     steps:
