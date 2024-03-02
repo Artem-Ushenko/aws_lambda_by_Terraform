@@ -33,18 +33,9 @@ jobs:
 
   terraform-plan-lambda-function:
     name: 'TF Plan Lambda Function'
-    if: github.event_name == 'workflow_dispatch'
-    permissions:
-      contents: read
-      id-token: write
     runs-on: ubuntu-latest
-    environment: plan
     needs: [tfsec-security-check]
-
-    defaults:
-      run:
-        shell: bash
-
+    
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -77,9 +68,6 @@ jobs:
 
   terraform-apply-lambda-function:
     name: 'TF Apply Lambda Function'
-    permissions:
-      contents: read
-      id-token: write
     runs-on: ubuntu-latest
     environment: dev
     needs: [terraform-plan-lambda-function]
