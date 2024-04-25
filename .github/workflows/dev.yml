@@ -66,6 +66,10 @@ jobs:
         with:
           terraform_version: ">=1.6.6"
 
+      - name: tf init lambda
+        run: terraform init
+        working-directory: .
+
       - name: tf apply lambda
         run: terraform apply tfplan
         working-directory: .
