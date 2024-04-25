@@ -45,6 +45,12 @@ jobs:
           name: TF plan lambda
           path: tfplan
 
+      - name: Upload ZIP as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ZIP Lambda Function
+          path: ./python_lambda_function/script.zip
+
       - name : Check Catalog python_lambda_function
         run: |
           ls -al
@@ -73,6 +79,12 @@ jobs:
         with:
           name: TF plan lambda
           path: .
+
+      - name: Download ZIP Lambda Function
+        uses: actions/download-artifact@v2
+        with:
+          name: ZIP Lambda Function
+          path: ./python_lambda_function
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
