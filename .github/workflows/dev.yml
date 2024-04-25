@@ -44,10 +44,6 @@ jobs:
         with:
           name: TF plan lambda
           path: tfplan
-          
-      - name : Check Catalog python_lambda_function
-        run: |
-          pip install flask -t ./python_lambda_function
       
       - name: Upload ZIP as artifact
         uses: actions/upload-artifact@v2
