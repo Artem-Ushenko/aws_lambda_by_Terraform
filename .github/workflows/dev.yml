@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - "dev"
-  workflow_dispatch:
+  #workflow_dispatch:
 
 permissions:
   id-token: write
@@ -47,7 +47,7 @@ jobs:
 
   terraform-apply-lambda-function:
     name: 'TF Apply Lambda Function'
-    if: github.event_name == 'workflow_dispatch'
+    #if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     needs: [terraform-plan-lambda-function]
 
