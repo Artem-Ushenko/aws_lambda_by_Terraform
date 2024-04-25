@@ -1,0 +1,71 @@
+name: 'Terraform Build Lambda Function'
+
+on:
+  push:
+    branches:
+      - "dev"
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+  security-events: write
+
+jobs:
+  terraform-plan-lambda-function:
+    name: 'TF Plan Lambda Function'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ">=1.6.6"
+
+      - name: tf init lambda
+        run: terraform init
+        working-directory: .
+
+      - name: tf plan lambda
+        run: terraform plan -out=tfplan
+        working-directory: .
+
+      - name: Upload plan as artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: TF plan lambda
+          path: tfplan
+
+  terraform-apply-lambda-function:
+    name: 'TF Apply Lambda Function'
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    needs: [terraform-plan-lambda-function]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download plan artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: TF plan lambda
+          path: .
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: ">=1.6.6"
+
+      - name: tf apply lambda
+        run: terraform apply tfplan
+        working-directory: .
