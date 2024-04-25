@@ -1,27 +1,17 @@
-import os
-import requests
-from flask import Flask, request, jsonify
-from dotenv import load_dotenv
+from flask import Flask, request, send_from_directory
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-load_dotenv()
-telegram_token = os.getenv('TELEGRAM_TOKEN')
-telegram_chat_id = os.getenv('TELEGRAM_CHAT_ID')
-
-@app.route('/webhook', methods=['POST'])
-def webhook():
-
-    data = request.get_json(force=True) if request.data else {}
-    order_id = data.get('id')
-    total = data.get('total')
-    message = f'New Order: #{order_id} for a total of ${total}'
-
-    url = f'https://api.telegram.org/bot{telegram_token}/sendMessage'
-    data = {'chat_id': telegram_chat_id, 'text': message}
-    response = requests.post(url, data=data)
-
-    return jsonify({'status': 'success'}), 200
+@app.route('/', methods=['GET'])
+def main_page():
+    file_name = request.args.get('index', default='index.html', type=str)
+    file_name = secure_filename(file_name)  # Ensure the filename is secure
+    directory = './'  # Update this path to your files' directory
+    try:
+        return send_from_directory(directory, file_name)
+    except Exception as e:
+        return str(e)
 
 if __name__ == '__main__':
     app.run(port=5000)
