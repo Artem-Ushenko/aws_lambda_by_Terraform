@@ -1,5 +1,4 @@
-# Generates an archive from content, a file, or a directory of files.
-
+# Generates an archive from the source code, which can then be uploaded to Lambda
 data "archive_file" "zip_the_python_code" {
   type        = "zip"
   source_dir  = "${path.module}/python_lambda_function/"
